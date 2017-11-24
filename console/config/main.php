@@ -9,7 +9,10 @@ $params = array_merge(
 return [
     'id' => 'app-console',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => [
+        'log',
+        'queue', // 把这个组件注册到控制台
+    ],
     'controllerNamespace' => 'console\controllers',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -20,8 +23,22 @@ return [
             'class' => 'yii\console\controllers\FixtureController',
             'namespace' => 'common\fixtures',
           ],
+        'migrate' => [
+            'class' => 'yii\console\controllers\MigrateController',
+            'migrationPath' => null,
+            'migrationNamespaces' => [
+                'yii\queue\db\migrations',
+            ],
+        ],
     ],
     'components' => [
+        'queue' => [
+            'class' => '\yii\queue\db\Queue',
+            'db' => 'db', // DB 连接组件或它的配置
+            'tableName' => '{{%queue}}', // 表名
+            'channel' => 'default', // Queue channel key
+            'mutex' => '\yii\mutex\MysqlMutex', // Mutex that used to sync queries
+        ],
         'log' => [
             'targets' => [
                 [
